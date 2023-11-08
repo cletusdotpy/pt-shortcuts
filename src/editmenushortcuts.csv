@@ -1,0 +1,12 @@
+Action,Windows,Mac
+Undo,CONTROL+Z,
+Redo,CONTROL+SHIFT+Z,
+Restore Last Selection,CONTROL+ALT+Z,
+Cut,CONTROL+X,
+Copy,CONTROL+C,
+Paste,CONTROL+V,
+Clear,CONTROL+B,
+Select All,CONTROL+A,
+Cut Special Cut Clip Gain,META+SHIFT+X,
+Copy Special Copy Clip Gain,META+SHIFT+C,
+Paste Special Merge,ALT+M,
