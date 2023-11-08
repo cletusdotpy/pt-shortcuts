@@ -1,4 +1,6 @@
 // MAKE THIS CODE MORE READABLE YOU SCUMBAG. NEED TO GO THROUGH AND COMMENT ON WHAT ISN'T COMMENTED ON.
+// Geez, alright dude!
+// 11/7/23 11:59pm EST - code is cleaned up/commented :D See various TODOs throughout
 
 import React, { useState, useEffect } from 'react';
 import './App.css';
@@ -8,27 +10,17 @@ import Papa from 'papaparse';
 import ptshortcuts from './editmenushortcuts.csv';
 
 function App() {
-  // I believe this means that the application launches in noncapture mode, which is good cheese.
-  // What is the scope in which I can reference capture mode? Useful to know if I want to make an indicator of when the app has fuller control of keyboard..
+  // used to determine if keys like ctrl/alt/win should have default behavior (!capturemode=not locked in)
   const [captureMode, setCaptureMode] = useState(false);
 
-  // This section helps enter/escape the application. This should pair well with a popup tooltip upon visiting the site
-  // This should include some form of instruction like "Press ESC to leave, press enter to start!" < revisit these keys though.
+  // TODO: Give pop up with instructions, prompt to enter capture mode
 
+  // Logic for captureMode
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (captureMode) {
-
         // Prevents key events from default behaviour (ex: f11 wont fullscreen)
         event.preventDefault();
-
-// Also... wtf.. this const handleKeyDown exists twice.. consolidate these, and look for other similar mistakes..?
-// Update: Spaghetti code breaks and I don't want to troubleshoot this rn.. something about these being in different "useEffect"s... maybe when I learn what that is. o7
-
-// Are multiple "useEffects" less efficient than just one? wtf is a useEffect?
-// Jesus dude youre rusty
-
-// Account for various functional keys here (escape character, ctrl/alt/shift, etc)
 
         // Toggle capture mode off with escape key
         if (event.key === 'Escape') {
@@ -36,19 +28,9 @@ function App() {
           console.log("Exited capture mode")
         }
 
-/*
-        // Add the key to the active keys if it's not already there
-        // This if statement by itself will successfully highlight keys, but won't "let go"
-        // going to comment this back out, and return to using the next useEffect for now.
-        if (!activeKeys.includes(event.key.toUpperCase())) {
-          setActiveKeys([...activeKeys, event.key.toUpperCase()]);
-        }
-*/
-
-
       // NON CAPTURE MODE  
       } else {
-        // Toggle capture mode on with a specific key (e.g., Enter)
+        // Toggle capture mode on with enter key
         if (event.key === 'Enter') {
           setCaptureMode(true);
           console.log("Capture mode entered")
@@ -62,112 +44,112 @@ function App() {
 
   ///////
 
+  // Const to be used to compare to CSV containing various key combinations
   const [activeKeys, setActiveKeys] = useState([]);
-  //const [pressedKeys, setPressedKeys] = useState('');
 
+//TODO: FIX ONSCREEN KEYBOARD LIGHTING
+//       in the next useEffect, nest the 
+//      "if (!activeKeys.includes(event.key.toUpperCase())) {"
+//      conditional in a check for ctrl/win/alt/space keys (might need to check others)
+//
+//      ALSO, see 'activeKeyString' on line ~120. Might be relevant to above.
 
-// I think I maybe want to try adding code to the below useEffect to process ctrl/alt/shift/etc. I really should combine this with above at some point.. it's just so gross up there.....
-// Wait a minute..... is this only checking and updating a the consant "activeKeys", which is otherwise non existent if not for this useEffect? Is this actually helping the app?
-
-
-useEffect(() => {
-    const handleKeyDown = (event) => {
-      // Add the key to the active keys if it's not already there
-      if (!activeKeys.includes(event.key.toUpperCase())) {
-        setActiveKeys([...activeKeys, event.key.toUpperCase()]);
-
-        //logging
-        console.log('event key:', event.key);
-        console.log('Active keys: ', activeKeys);
-        console.log('current shortcut: ', currentShortcut);
-        console.log('target stroke: ', shortcutStroke)
-      }
-    };
-
-    const handleKeyUp = (event) => {
-      // Remove the key from active keys
-      setActiveKeys(activeKeys.filter(key => key !== event.key.toUpperCase()));
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    // Cleanup the event listeners on component unmount
-    // WTF is this... this is why u shouldnt program with chatgpt u idiot...
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [activeKeys]);
-
-
-  const [shortcuts, setShortcuts] = useState([]);
-
-  const [currentShortcut, setCurrentShortcut] = useState([]);
-
-  //define the randomly generated starting point in the index
-  function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-  }
-  var positionInArray = getRandomInt(11);
-
-  //feel like i might need this, not sure where yet.
-  const [shortcutStroke, setShortcutStroke] = useState([]);
-
-  //Section to set the current shortcut from CSV
+  // Generate array of keys pressed 
   useEffect(() => {
-    Papa.parse(ptshortcuts, {
-      download: true,
-      header: true,
-      complete: (result) => {
-        //Next line pulls all data into shortcuts const
-        setShortcuts(result.data);
+      const handleKeyDown = (event) => {
+        // Add the key to the activeKeys if it's not already there
+        if (!activeKeys.includes(event.key.toUpperCase())) {
+          setActiveKeys([...activeKeys, event.key.toUpperCase()]);
 
-        //really struggling in here... why can't I get a display of the shortcut name and actively set the shortcut to a const to be compared to the users input?
-        //Feel like i might have to move these 2 elsewhere in the program..
-        //In dev tools, when starting the web app, the current shortcut is an array including "Ctrl+C". After an action this updates to the full object as specified below
-        // This might not be a problem down the line when considering the visual overlay I want to instrument for when out of capture mode
+          //logging for troubleshooting, ignore..
+          console.log('event key:', event.key);
+          console.log('Active keys: ', activeKeys);
+          console.log('current shortcut: ', currentShortcut);
+        }
+      };
 
-        //Update, this works. Might be a pain to revisit when I want these to randomly generate. Probably not, just need to sub 0 for RNG
-        setCurrentShortcut(result.data[positionInArray]);
-        setShortcutStroke(result.data[positionInArray]['Windows']);
-      }
-    });
-  }, []);
+      const handleKeyUp = (event) => {
+        // Remove the key from activeKeys when released
+        setActiveKeys(activeKeys.filter(key => key !== event.key.toUpperCase()));
+      };
 
-  // condence array of pressed keys to correct format for comparison to shorcut CSV
-  const activeKeyString = activeKeys.join('+');
-  //Check for correct. Currently not working because of formatting differences between active keys and shortcut DB
-  // Fixed :) delete later. Want to bask in my successes tomorrow
-  useEffect(() => {
-    if (activeKeyString === currentShortcut.Windows) {
-      console.log('Correct shortcut pressed!');
-      // Advance to the next shortcut, reset pressedKeys, etc.
-      positionInArray = getRandomInt(11);
-      setCurrentShortcut(shortcuts[positionInArray]);
-      setShortcutStroke(shortcuts[positionInArray]['Windows']);
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('keyup', handleKeyUp);
+
+      // Cleanup the event listeners on component unmount
+      // ^^ Real talk ChatGPT said this. Still trying to figure out what this return does down here (as well as the logic behind the above addEventListeners..).
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
+      };
+    }, [activeKeys]);
+
+    // const containing full contents of shortcuts CSV.
+    // If plan is to have differnet "sections" of shortcut lessons, this can be replicated.
+    const [shortcuts, setShortcuts] = useState([]);
+
+//TODO: Populate CSV with Mac shortcuts. Opens a whole can of worms of determining which OS user is on/changing onscreen keyboard
+
+    // Used to hold the current "profile" of the shortcut (all columns for a row in CSV),
+    // currently including Keystroke name, keystroke pattern in plaintext for windows, and an empty column of the same for Mac.
+    const [currentShortcut, setCurrentShortcut] = useState([]);
+
+    //define randomly generated starting point in the table of shortcuts
+    function getRandomInt(max) {
+      return Math.floor(Math.random() * max);
     }
-  }, [activeKeys, currentShortcut, shortcuts]);
+    var positionInArray = getRandomInt(11);
 
+    //Section to set the current shortcut from CSV
+    useEffect(() => {
+      Papa.parse(ptshortcuts, {
+        download: true,
+        header: true,
+        complete: (result) => {
+          //Next line pulls all data into shortcuts const
+          setShortcuts(result.data);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Pro Tools Shortcut Practice</h1>
-      </header>
-      <main>
-        <div className="shortcut-display">
-          <h2>Current Shortcut: {currentShortcut.Action}</h2>
-        </div>
-        <div className="keyboard-visualization">
-          <Keyboard activeKeys={activeKeys} />
-        </div>
-      </main>
-    </div>
-    
-  );
+          // Populate currentShortcut with all columns in row
+          setCurrentShortcut(result.data[positionInArray]);
+        }
+      });
+    }, []);
 
-}
+    // Condence array of pressed keys to into correct format for comparison to shorcut CSV
+    // Ex: ['Control'], ['Z']    --->    "CONTROL+Z"
+    // Might be able to fix faulty ctrl/alt/win key onscreen issue here... referenced this in at line with comment "  // Generate array of keys pressed " line ~57
+    const activeKeyString = activeKeys.join('+');
+  
+    // Compare activeKeyString to the keystroke from the table, meaning user provided right keystroke
+    useEffect(() => {
+      if (activeKeyString === currentShortcut.Windows) {
+        console.log('Correct shortcut pressed!');
+
+        //Roll new number and jump to next random position. Might want to eventually implement a limit here for "levels"
+        positionInArray = getRandomInt(11);
+        setCurrentShortcut(shortcuts[positionInArray]);
+      }
+    }, [activeKeys, currentShortcut, shortcuts]);
+
+// Duh HTML I guess.. it just chills in this javascript file..?
+    return (
+      <div className="App">
+        <header className="App-header">
+          <h1>Pro Tools Shortcut Practice</h1>
+        </header>
+        <main>
+          <div className="shortcut-display">
+            <h2>Current Shortcut: {currentShortcut.Action}</h2>
+          </div>
+          <div className="keyboard-visualization">
+            <Keyboard activeKeys={activeKeys} />
+          </div>
+        </main>
+      </div>
+      
+    );
+
+  }
 
 
 export default App;
