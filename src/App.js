@@ -144,6 +144,8 @@ useEffect(() => {
       console.log('Correct shortcut pressed!');
       // Advance to the next shortcut, reset pressedKeys, etc.
       positionInArray = getRandomInt(11);
+      setCurrentShortcut(shortcuts[positionInArray]);
+      setShortcutStroke(shortcuts[positionInArray]['Windows']);
     }
   }, [activeKeys, currentShortcut, shortcuts]);
 
